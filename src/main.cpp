@@ -8,6 +8,9 @@
 #define pinDir1M2 7
 #define pinDir2M2 8
 
+// Define LED pin
+#define pinLED 2
+
 void setup() {
   // Direction pins
   pinMode(pinDir1M1, OUTPUT);
@@ -27,6 +30,11 @@ void loop() {
   digitalWrite(pinDir1M2, LOW);
   digitalWrite(pinDir2M2, HIGH);
 
-  digitalWrite(pinM1, 80);
-  digitalWrite(pinM2, 80);
+  digitalWrite(pinM1, 100);
+  digitalWrite(pinM2, 100);
+
+  digitalWrite(pinLED, HIGH);
+  delay(1000);
+  digitalWrite(pinLED, LOW);
+  delay(1000);
 }

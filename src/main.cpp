@@ -11,6 +11,26 @@
 // Define LED pin
 #define pinLED 2
 
+void my_digitalWrite(uint8_t pin, uint8_t val){
+  uint8_t bit = digitalPinToBitMask(pin);
+	uint8_t port = digitalPinToPort(pin);
+  volatile uint8_t *out;
+
+  out = portOutputRegister(port);
+
+    uint8_t oldSREG = SREG;
+    cli();
+
+    if (val == LOW) {
+      *out &= ~bit;
+    } else {
+      *out |= bit;
+    }
+
+    SREG = oldSREG;
+
+}
+
 boolean set_motor_speeds(signed int speed){
   /*
   * Method for writing speed to the motors. Sets the same amount of speed to the both motors.
@@ -27,17 +47,17 @@ boolean set_motor_speeds(signed int speed){
   // Set the direction of the motors
   if (speed >= 0){
       // Forward
-      digitalWrite(pinDir1M1, HIGH);
-      digitalWrite(pinDir2M1, LOW);
-      digitalWrite(pinDir1M2, LOW);
-      digitalWrite(pinDir2M2, HIGH);
+      my_digitalWrite(pinDir1M1, HIGH);
+      my_digitalWrite(pinDir2M1, LOW);
+      my_digitalWrite(pinDir1M2, LOW);
+      my_digitalWrite(pinDir2M2, HIGH);
   }
   else{
       // Backward 
-      digitalWrite(pinDir1M1, LOW);
-      digitalWrite(pinDir2M1, HIGH);
-      digitalWrite(pinDir1M2, HIGH);
-      digitalWrite(pinDir2M2, LOW);
+      my_digitalWrite(pinDir1M1, LOW);
+      my_digitalWrite(pinDir2M1, HIGH);
+      my_digitalWrite(pinDir1M2, HIGH);
+      my_digitalWrite(pinDir2M2, LOW);
   }
 
   // Map a value between 0 and 100 to a range accepted by the motors.
@@ -68,7 +88,7 @@ void setup() {
 
 void loop() {
   // Example run of the motors
-  for (int i=-120; i<= 130; i += 10){
+  for (int i=-20; i<= 20; i += 1){
     set_motor_speeds(i);
     delay(750);
   }

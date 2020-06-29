@@ -8,8 +8,9 @@
 #define pinDir1M2 7
 #define pinDir2M2 8
 
-// Define LED pin
+// Define LED pins
 #define pinLED 2
+#define pinStatusLED 13 
 
 void my_digitalWrite(uint8_t pin, uint8_t val){
   uint8_t bit = digitalPinToBitMask(pin);

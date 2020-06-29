@@ -1,4 +1,8 @@
 #include <Arduino.h>
+#include <../lib/MPU6050_handle/MPU5060_handle.h>
+
+// Define the sensor class
+MPU5060_handle mpu;
 
 // Define the motor pins on the Arduino
 #define pinM1 5
@@ -10,7 +14,7 @@
 
 // Define LED pins
 #define pinLED 2
-#define pinStatusLED 13 
+#define pinStatusLED 13  
 
 void my_digitalWrite(uint8_t pin, uint8_t val){
   uint8_t bit = digitalPinToBitMask(pin);
@@ -88,9 +92,7 @@ void setup() {
 }
 
 void loop() {
-  // Example run of the motors
-  for (int i=-20; i<= 20; i += 1){
-    set_motor_speeds(i);
-    delay(750);
-  }
+  int a = mpu.dummy();
+  Serial.println(a);
+  delay(1000);
 }

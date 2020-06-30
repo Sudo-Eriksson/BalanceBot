@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <../lib/MPU6050_handle/MPU5060_handle.h>
 
-// Define the sensor class
+// Create an object for the MPU6050
 MPU5060_handle mpu;
 
 // Define the motor pins on the Arduino
@@ -15,6 +15,8 @@ MPU5060_handle mpu;
 // Define LED pins
 #define pinLED 2
 #define pinStatusLED 13  
+
+/****************** NEEDED METHODS ******************/
 
 void my_digitalWrite(uint8_t pin, uint8_t val){
   uint8_t bit = digitalPinToBitMask(pin);
@@ -75,6 +77,8 @@ boolean set_motor_speeds(signed int speed){
   return true;
 }
 
+/******************* MAIN METHODS *******************/
+
 void setup() {
   // Start serial communication
   Serial.begin(9600);
@@ -92,7 +96,7 @@ void setup() {
 }
 
 void loop() {
-  int a = mpu.dummy();
-  Serial.println(a);
+  mpu.MPUReadAccel();   // Get new sensor data
+  Serial.println(mpu.gForceX);  // Print the new sensor data that have been updated in mpu object
   delay(1000);
 }

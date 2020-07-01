@@ -93,10 +93,24 @@ void setup() {
   pinMode(pinM1, OUTPUT);
   pinMode(pinM2, OUTPUT);
 
+  // Set up MPU6050
+  if (mpu.SetupMPU()){
+    mpu.calibrateGyro();
+  }
+  else{
+    Serial.println("MPU6050 failed. Shutting down program.");
+    while(true){
+      delay(1000);
+    }
+  }
 }
 
 void loop() {
-  mpu.MPUReadAccel();   // Get new sensor data
-  Serial.println(mpu.gForceX);  // Print the new sensor data that have been updated in mpu object
-  delay(1000);
+  mpu.MPUReadGyro();   // Get new sensor data
+  mpu.MPUReadAccel();
+  Serial.print("X: "); Serial.println(mpu.rotX);  // Print the new sensor data that have been updated in mpu object
+  Serial.print("Y: "); Serial.println(mpu.rotY);
+  Serial.print("Z: "); Serial.println(mpu.rotZ);  
+  Serial.println("---------------");
+  delay(500);
 }

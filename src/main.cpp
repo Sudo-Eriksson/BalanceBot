@@ -30,6 +30,9 @@ float gForceY, gForceZ, gForceX;     // Accelerometer sensor values
 float rotX;                          // Gyroscope sensor values
 float calibX;                        // Gyroscope calibration values
 
+// PID-calibration
+unsigned long Kp = 2;
+
 /****************** NEEDED METHODS ******************/
 
 void my_digitalWrite(uint8_t pin, uint8_t val){
@@ -52,7 +55,7 @@ void my_digitalWrite(uint8_t pin, uint8_t val){
 
 }
 
-boolean set_motor_speeds(signed int speed){
+boolean set_motor_speeds(signed long speed){
   /*
   * Method for writing speed to the motors. Sets the same amount of speed to the both motors.
   * Param: speed - Signed integer that corresponds to the wanted speed of the motor. Range of -100 - 100.
@@ -106,6 +109,15 @@ void complementaryFilter(){
   tot_roll = 0.97*(tot_roll + ((rotX - calibX)*dt)) + 0.03*(roll_acc);
 } 
 
+void PIDController(int ref){
+
+  signed long error = tot_roll - ref;
+
+  signed long motorSpeed = error*Kp;
+
+  set_motor_speeds(motorSpeed);
+}
+
 /******************* MAIN METHODS *******************/
 
 void setup() {
@@ -148,7 +160,7 @@ void loop() {
   // Run complementary filter
   complementaryFilter();
   
-  Serial.println(tot_roll);
+  PIDController(0);
 
   if(micros() - loopTimer > looptime){
     Serial.print("WARNING!! TOO LONG MAIN LOOP!: "); Serial.println(micros() - loopTimer);

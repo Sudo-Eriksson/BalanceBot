@@ -36,6 +36,12 @@ unsigned long Kp = 2;
 /****************** NEEDED METHODS ******************/
 
 void my_digitalWrite(uint8_t pin, uint8_t val){
+  /*
+  * Custom digitalWrite method that is faster than the native Arduion one.
+  * Param: pin - The pin to write to.
+  * Param: val - If the ping should be set to HIGH or LOW.
+  */
+
   uint8_t bit = digitalPinToBitMask(pin);
 	uint8_t port = digitalPinToPort(pin);
   volatile uint8_t *out;
@@ -95,7 +101,11 @@ boolean set_motor_speeds(signed long speed){
 }
 
 void complementaryFilter(){
-  // Calculate the angles according to the accelerometer
+  /*
+  * Implementation a a complementary filter for the values from the MPU6050.
+  * Sets the global parameter tot roll to the angle of the robot.
+  */
+
   // 180/pi ≈ 57.29
 
   gForceY = mpu.gForceY;
@@ -110,7 +120,10 @@ void complementaryFilter(){
 } 
 
 void PIDController(int ref){
-
+  /*
+  * Implementation of a simple pid controller.
+  * Param: ref - Referece angle. 
+  */
   signed long error = tot_roll - ref;
 
   signed long motorSpeed = error*Kp;
@@ -149,7 +162,6 @@ void setup() {
 void loop() {
   // Todo:  * Kolla vad som tar lång tid genom micros. Kolla vilken metod det är och vad man kan göra för att fixa det.
   //        * Bryta ut comp-filter till eget lib?
-  //        * Implementera PID
   //        * Testa om jag kan byta ut vissa variabeltyper till andra.
   loopTimer = micros();
 

@@ -8,6 +8,11 @@ MPU5060_handle::MPU5060_handle()
 }
 
 bool MPU5060_handle::MPUReadAccel(){
+    /*
+    * Read accelerometer data from the MPU5060
+    * Return: True - if the method executed succesfully.
+    * Return: False - if the method executed unsuccesfully.
+    */
     Wire.beginTransmission(MPU1_I2C_ADDRESS);
     Wire.write(MPU_ACCEL_READ_REG);
     Wire.endTransmission();
@@ -25,6 +30,11 @@ bool MPU5060_handle::MPUReadAccel(){
 }
 
 bool MPU5060_handle::MPUReadGyro(){
+    /*
+    * Read gyro data from the MPU5060
+    * Return: True - if the method executed succesfully.
+    * Return: False - if the method executed unsuccesfully.
+    */
     Wire.beginTransmission(MPU1_I2C_ADDRESS);
     Wire.write(MPU_GYRO_READ_REG);
     Wire.endTransmission();
@@ -42,6 +52,9 @@ bool MPU5060_handle::MPUReadGyro(){
 }
 
 void MPU5060_handle::calibrateGyro(){
+    /*
+    * Calibrate the gyro data.
+    */
     int loopTimer = 0;
 
     //digitalWrite(STATUS_PIN, HIGH);
@@ -82,6 +95,12 @@ void MPU5060_handle::calibrateGyro(){
     }
 
 bool MPU5060_handle::SetupMPU(){
+    /*
+    * Method for setting up the sensor. This method should be called as the first thing when using the sensor.
+    * Return: True - if the method executed succesfully.
+    * Return: False - if the method executed unsuccesfully.
+    */
+
     Serial.println("Seting Up MPU6050");
 
     int res = 0;

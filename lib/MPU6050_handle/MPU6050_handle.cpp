@@ -12,12 +12,15 @@ bool MPU5060_handle::MPUReadAccel(){
     Wire.write(MPU_ACCEL_READ_REG);
     Wire.endTransmission();
     Wire.requestFrom(MPU1_I2C_ADDRESS, MPU_ACCEL_READ_REG_SIZE);
+
     unsigned long timeout = millis() + MPU_READ_TIMEOUT;
+
     while(Wire.available() < MPU_ACCEL_READ_REG_SIZE && timeout < millis());
+
     if (timeout <= millis()) return false;
-    gForceX = (long)(Wire.read() << 8 | Wire.read()) / MPU_ACCEL_READINGSCALE_2G;
-    gForceY = (long)(Wire.read() << 8 | Wire.read()) / MPU_ACCEL_READINGSCALE_2G;
-    gForceZ = (long)(Wire.read() << 8 | Wire.read()) / MPU_ACCEL_READINGSCALE_2G;
+        gForceX = (long)(Wire.read() << 8 | Wire.read()) * MPU_ACCEL_READINGSCALE_2G;
+        gForceY = (long)(Wire.read() << 8 | Wire.read()) * MPU_ACCEL_READINGSCALE_2G;
+        gForceZ = (long)(Wire.read() << 8 | Wire.read()) * MPU_ACCEL_READINGSCALE_2G;
     return true;
 }
 
@@ -26,12 +29,15 @@ bool MPU5060_handle::MPUReadGyro(){
     Wire.write(MPU_GYRO_READ_REG);
     Wire.endTransmission();
     Wire.requestFrom(MPU1_I2C_ADDRESS, MPU_GYRO_READ_REG_SIZE);
+
     unsigned long timeout = millis() + MPU_READ_TIMEOUT;
+
     while(Wire.available() < MPU_ACCEL_READ_REG_SIZE && timeout < millis());
+
     if (timeout <= millis()) return false;
-    rotX = (long)(Wire.read() << 8 | Wire.read()) / MPU_GYRO_READINGSCALE_500DEG;
-    rotY = (long)(Wire.read() << 8 | Wire.read()) / MPU_GYRO_READINGSCALE_500DEG;
-    rotZ = (long)(Wire.read() << 8 | Wire.read()) / MPU_GYRO_READINGSCALE_500DEG;
+        rotX = (long)(Wire.read() << 8 | Wire.read()) * MPU_GYRO_READINGSCALE_500DEG;
+        //rotY = (long)(Wire.read() << 8 | Wire.read()) * MPU_GYRO_READINGSCALE_500DEG;
+        //rotZ = (long)(Wire.read() << 8 | Wire.read()) * MPU_GYRO_READINGSCALE_500DEG;
     return true;
 }
 
@@ -42,37 +48,33 @@ void MPU5060_handle::calibrateGyro(){
     Serial.println("Calibrating Gyro");
 
     calibX = 0;
-    calibY = 0;
-    calibZ = 0;
+    //calibY = 0;
+    //calibZ = 0;
 
+    for(int i=0; i<MPU_CALIBRATE_READING_NUM;i++){
+        if(MPUReadGyro()){
+            calibX += rotX;
+            //calibY += rotY;
+            //calibZ += rotZ;
 
-    for(int i=0; i<MPU_CALIBRATE_READING_NUM;i++)
-    {
-        if(MPUReadGyro())
-        {
-        calibX += rotX;
-        calibY += rotY;
-        calibZ += rotZ;
-
-        //wait for the next sample cycle
-        while(micros() - loopTimer < 4000);
-        loopTimer = micros();
+            //wait for the next sample cycle
+            while(micros() - loopTimer < 4000);
+            loopTimer = micros();
         }
-        else
-        {
-        i--;
+        else{
+            i--;
         }
     }
     calibX = calibX / MPU_CALIBRATE_READING_NUM;
-    calibY = calibY / MPU_CALIBRATE_READING_NUM;
-    calibZ = calibZ / MPU_CALIBRATE_READING_NUM;
+    //calibY = calibY / MPU_CALIBRATE_READING_NUM;
+    //calibZ = calibZ / MPU_CALIBRATE_READING_NUM;
 
     Serial.print("x: ");
     Serial.print(calibX);
-    Serial.print("y: ");
-    Serial.print(calibY);
-    Serial.print("z: ");
-    Serial.println(calibZ);
+    //Serial.print("y: ");
+    //Serial.print(calibY);
+    //Serial.print("z: ");
+    //Serial.println(calibZ);
 
     Serial.println("Calibration of Gyro Done.");
 

@@ -16,19 +16,19 @@ MPU5060_handle mpu;
 #define pinLED 2
 #define pinStatusLED 13
 
-unsigned long looptime = 50000;  // Looptime in microseconds
+unsigned long looptime = 10000;//2500;  // Looptime in microseconds
 float dt = 0.000001*looptime;   // loop time in seconds
 unsigned long loopTimer;
 
-float roll_acc = 0;
+float roll_acc  = 0;
 float pitch_acc = 0;
-float tot_roll = 0;
+float tot_roll  = 0;
 float tot_pitch = 0;
 
 // Setup sensor variables
-float gForceX, gForceY, gForceZ;  // Accelerometer sensor values
-float rotX, rotY, rotZ;           // Gyroscope sensor values
-float calibX, calibY, calibZ;     // Gyroscope calibration values
+float gForceY, gForceZ, gForceX;     // Accelerometer sensor values
+float rotX;                          // Gyroscope sensor values
+float calibX;                        // Gyroscope calibration values
 
 /****************** NEEDED METHODS ******************/
 
@@ -95,23 +95,16 @@ void complementaryFilter(){
   // Calculate the angles according to the accelerometer
   // 180/pi ≈ 57.29
 
-  // gForceX = mpu.gForceX;
   gForceY = mpu.gForceY;
   gForceZ = mpu.gForceZ;
-
   rotX = mpu.rotX;
-  // rotY = mpu.rotY;
-  // rotZ = mpu.rotZ;
-
   calibX = mpu.calibX;
 
   roll_acc = atan(gForceY/gForceZ)*(57.29);
-  // pitch_acc = -atan( (gForceX) / sqrt((gForceY*gForceY) + (gForceZ*gForceZ))) *(57.29);
 
   // Complementary filter
-  tot_roll = 0.98*(tot_roll + ((rotX - calibX)*dt)) + 0.02*(roll_acc);
-  // tot_pitch = 0.99*(tot_pitch + ((rotY - calibY)*dt)) + 0.01*(pitch_acc);
-}
+  tot_roll = 0.97*(tot_roll + ((rotX - calibX)*dt)) + 0.03*(roll_acc);
+} 
 
 /******************* MAIN METHODS *******************/
 
@@ -142,23 +135,25 @@ void setup() {
 }
 
 void loop() {
+  // Todo:  * Kolla vad som tar lång tid genom micros. Kolla vilken metod det är och vad man kan göra för att fixa det.
+  //        * Bryta ut comp-filter till eget lib?
+  //        * Implementera PID
+  //        * Testa om jag kan byta ut vissa variabeltyper till andra.
   loopTimer = micros();
 
   // Get new sensor data
   mpu.MPUReadGyro();
   mpu.MPUReadAccel();
-
-  // Run complementary filter 
-  complementaryFilter();
-
-  // Print roll and pitch
-  Serial.print("Roll: "); Serial.println(tot_roll);
-  // Serial.print("Pitch: "); Serial.println(tot_pitch); 
   
+  // Run complementary filter
+  complementaryFilter();
+  
+  Serial.println(tot_roll);
+
   if(micros() - loopTimer > looptime){
-      Serial.print("WARNING!! TOO LONG MAIN LOOP!: "); Serial.println(micros() - loopTimer);
-    }
+    Serial.print("WARNING!! TOO LONG MAIN LOOP!: "); Serial.println(micros() - loopTimer);
+  }
 
   while(micros() - loopTimer < looptime);
-
+  
 }

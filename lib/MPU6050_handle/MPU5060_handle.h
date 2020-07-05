@@ -15,16 +15,18 @@ private:
     #define MPU_GYRO_READ_REG               0x43
     #define MPU_GYRO_READ_REG_SIZE          6
     #define MPU_GYRO_CFG_500DEG             0b00001000
-    #define MPU_GYRO_READINGSCALE_500DEG    65.5
+    // #define MPU_GYRO_READINGSCALE_500DEG    65.5
+    #define MPU_GYRO_READINGSCALE_500DEG    0.01526717557251 // 1/default value above
     #define MPU_CALIBRATE_READING_NUM       2000
 
     #define MPU_ACCEL_CFG_REG               0x1C
     #define MPU_ACCEL_READ_REG              0x3B
     #define MPU_ACCEL_READ_REG_SIZE         6
     #define MPU_ACCEL_CFG_2G                0b00000000
-    #define MPU_ACCEL_READINGSCALE_2G       16384.0
-
+    // #define MPU_ACCEL_READINGSCALE_2G       16384.0
+    #define MPU_ACCEL_READINGSCALE_2G       0.00006103515625 // 1/default value above
     #define MPU1_I2C_ADDRESS                0b1101000
+
 public:
     // Constructor
     MPU5060_handle();
@@ -36,8 +38,8 @@ public:
     bool SetupMPU();
 
     // Variables
-    float gForceX, gForceY, gForceZ;  // Accelerometer sensor values
-    float rotX, rotY, rotZ;           // Gyroscope sensor values
-    float calibX, calibY, calibZ;     // Gyroscope calibration values
+    float gForceX, gForceY, gForceZ;     // Accelerometer sensor values
+    float rotX;// rotY, rotZ;            // Gyroscope sensor values
+    float calibX;// calibY, calibZ;      // Gyroscope calibration values
 };
 #endif 

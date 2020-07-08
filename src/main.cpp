@@ -29,9 +29,11 @@ float tot_pitch = 0;
 float gForceY, gForceZ, gForceX;     // Accelerometer sensor values
 float rotX;                          // Gyroscope sensor values
 float calibX;                        // Gyroscope calibration values
+float prev_rotX;                     // Gyroscope sensor values from previous loop
 
 // PID-calibration
-unsigned long Kp = 2;
+unsigned long Kp = 1;
+unsigned long Kd = 0;
 
 /****************** NEEDED METHODS ******************/
 
@@ -68,11 +70,12 @@ boolean set_motor_speeds(signed long speed){
   * Return: Boolean - True if the method executed successfully. False if something failed.
   */
   
+  /*
   // Check if the speed is whithin the allowed range.
   if (speed < -100 || speed > 100){
     Serial.print("Speed out of range: "); Serial.println(speed);
     return false;
-  }
+  }*/
 
   // Set the direction of the motors
   if (speed >= 0){
@@ -124,7 +127,7 @@ void PIDController(int ref){
   * Implementation of a simple pid controller.
   * Param: ref - Referece angle. 
   */
-  signed long error = tot_roll - ref;
+  signed long error = ref - tot_roll;
 
   signed long motorSpeed = error*Kp;
 

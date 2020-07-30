@@ -16,7 +16,7 @@ MPU5060_handle mpu;
 #define pinLED 2
 #define pinStatusLED 13
 
-unsigned long looptime = 10000;//2500;  // Looptime in microseconds
+unsigned long looptime = 2500;  // Looptime in microseconds
 float dt = 0.000001*looptime;   // loop time in seconds
 unsigned long loopTimer;
 
@@ -29,11 +29,12 @@ float tot_pitch = 0;
 float gForceY, gForceZ, gForceX;     // Accelerometer sensor values
 float rotX;                          // Gyroscope sensor values
 float calibX;                        // Gyroscope calibration values
-float prev_rotX;                     // Gyroscope sensor values from previous loop
+
+float prev_error = 0;                 // Gyroscope sensor values from previous loop
 
 // PID-calibration
-unsigned long Kp = 1;
-unsigned long Kd = 0;
+float Kp = 0;//10;
+float Kd = 1;
 
 /****************** NEEDED METHODS ******************/
 
@@ -63,7 +64,7 @@ void my_digitalWrite(uint8_t pin, uint8_t val){
 
 }
 
-boolean set_motor_speeds(signed long speed){
+boolean set_motor_speeds(float speed){
   /*
   * Method for writing speed to the motors. Sets the same amount of speed to the both motors.
   * Param: speed - Signed integer that corresponds to the wanted speed of the motor. Range of -100 - 100.
@@ -94,11 +95,12 @@ boolean set_motor_speeds(signed long speed){
   }
 
   // Map a value between 0 and 100 to a range accepted by the motors.
-  long speed_map = map(abs(speed), 0, 100, 89, 255);
+  long speed_map_M1 = map(abs(speed), 0, 100, 45, 255);
+  long speed_map_M2 = map(abs(speed), 0, 100, 35, 255);
 
   // Write the speed to the motors
-  analogWrite(pinM1, speed_map);
-  analogWrite(pinM2, speed_map);
+  analogWrite(pinM1, speed_map_M1);
+  analogWrite(pinM2, speed_map_M2);
 
   return true;
 }
@@ -127,11 +129,20 @@ void PIDController(int ref){
   * Implementation of a simple pid controller.
   * Param: ref - Referece angle. 
   */
-  signed long error = ref - tot_roll;
+  // Calculate the errors 
+  float error = ref - tot_roll;           // Error for P 
+  float error_d = (error-prev_error)/dt;  // Error for D
 
-  signed long motorSpeed = error*Kp;
+  // Calculate the PID
+  float motorSpeed = (error*Kp) + (error_d*Kd);
 
+  // Serial.println(error); Serial.println(error_d);
+
+  // Write to the motors
   set_motor_speeds(motorSpeed);
+
+  // Save the current error for D part next loop.
+  prev_error = error;
 }
 
 /******************* MAIN METHODS *******************/
@@ -176,6 +187,7 @@ void loop() {
   complementaryFilter();
   
   PIDController(0);
+  //set_motor_speeds(5);
 
   if(micros() - loopTimer > looptime){
     Serial.print("WARNING!! TOO LONG MAIN LOOP!: "); Serial.println(micros() - loopTimer);

@@ -33,8 +33,8 @@ float calibX;                        // Gyroscope calibration values
 float prev_error = 0;                 // Gyroscope sensor values from previous loop
 
 // PID-calibration
-float Kp = 0;//10;
-float Kd = 1;
+float Kp = 12;
+float Kd = 0.1;
 
 /****************** NEEDED METHODS ******************/
 
@@ -121,7 +121,9 @@ void complementaryFilter(){
   roll_acc = atan(gForceY/gForceZ)*(57.29);
 
   // Complementary filter
-  tot_roll = 0.97*(tot_roll + ((rotX - calibX)*dt)) + 0.03*(roll_acc);
+  tot_roll = 0.99*(tot_roll + ((rotX - calibX)*dt)) + 0.01*(roll_acc);
+
+  //Serial.println(tot_roll);
 } 
 
 void PIDController(int ref){
@@ -130,8 +132,8 @@ void PIDController(int ref){
   * Param: ref - Referece angle. 
   */
   // Calculate the errors 
-  float error = ref - tot_roll;           // Error for P 
-  float error_d = (error-prev_error)/dt;  // Error for D
+  float error = ref - tot_roll;             // Error for P 
+  float error_d = (error - prev_error)/dt;  // Error for D
 
   // Calculate the PID
   float motorSpeed = (error*Kp) + (error_d*Kd);
@@ -160,6 +162,9 @@ void setup() {
   // Motor ctrl signal pins
   pinMode(pinM1, OUTPUT);
   pinMode(pinM2, OUTPUT);
+
+  // Give some time for setting down the robot
+  delay(1000);
 
   // Set up MPU6050
   if (mpu.SetupMPU()){
